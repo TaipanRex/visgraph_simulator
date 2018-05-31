@@ -33,6 +33,8 @@ display_height = 720
 black = (0, 0, 0)
 white = (255, 255, 255)
 red = (237, 41, 57)
+gray = (169, 169, 169)
+green = (0, 128, 0)
 
 LEFT = 1
 RIGHT = 3
@@ -41,21 +43,21 @@ gameDisplay = pygame.display.set_mode((display_width, display_height))
 pygame.display.set_caption('Visibility Graph Simulator')
 clock = pygame.time.Clock()
 
-def draw_polygon(polygon, complete=True):
+def draw_polygon(polygon, color, size, complete=True):
     if complete:
         polygon.append(polygon[0])
     p1 = polygon[0]
     for p2 in polygon[1:]:
-        pygame.draw.line(gameDisplay, black, (p1.x, p1.y), (p2.x, p2.y), 4)
+        pygame.draw.line(gameDisplay, color, (p1.x, p1.y), (p2.x, p2.y), size)
         p1 = p2
 
-def draw_visible_vertices(edges):
+def draw_visible_vertices(edges, color, size):
     for edge in edges:
-        pygame.draw.line(gameDisplay, red, (edge.p1.x, edge.p1.y), (edge.p2.x, edge.p2.y), 1)
+        pygame.draw.line(gameDisplay, color, (edge.p1.x, edge.p1.y), (edge.p2.x, edge.p2.y), size)
 
-def draw_visible_mouse_vertices(pos, points):
+def draw_visible_mouse_vertices(pos, points, color, size):
     for point in points:
-        pygame.draw.line(gameDisplay, red, (pos.x, pos.y), (point.x, point.y), 1)
+        pygame.draw.line(gameDisplay, color, (pos.x, pos.y), (point.x, point.y), size)
 
 def draw_mode(mode_txt):
     font = pygame.font.SysFont(None, 25)
@@ -146,20 +148,20 @@ def game_loop():
         gameDisplay.fill(white)
 
         if len(work_polygon) > 1:
-            draw_polygon(work_polygon, complete=False)
+            draw_polygon(work_polygon, black, 3, complete=False)
 
         if len(polygons) > 0:
             for polygon in polygons:
-                draw_polygon(polygon)
+                draw_polygon(polygon, black, 3)
 
         if built and show_static_visgraph:
-            draw_visible_vertices(g.visgraph.get_edges())
+            draw_visible_vertices(g.visgraph.get_edges(), gray, 1)
 
         if built and show_mouse_visgraph and len(mouse_vertices) > 0:
-            draw_visible_mouse_vertices(mouse_point, mouse_vertices)
+            draw_visible_mouse_vertices(mouse_point, mouse_vertices, gray, 1)
 
         if len(shortest_path) > 1:
-            draw_polygon(shortest_path, complete=False)
+            draw_polygon(shortest_path, red, 3, complete=False)
 
         if mode_draw:
             draw_mode("-- DRAW MODE --")
