@@ -22,6 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 import pyvisgraph as vg
+from pyvisgraph.visible_vertices import visible_vertices
 import pygame
 
 pygame.init()
@@ -52,15 +53,22 @@ def draw_visible_vertices(edges):
     for edge in edges:
         pygame.draw.line(gameDisplay, red, (edge.p1.x, edge.p1.y), (edge.p2.x, edge.p2.y), 1)
 
+def draw_visible_mouse_vertices(pos, points):
+    for point in points:
+        pygame.draw.line(gameDisplay, red, (pos.x, pos.y), (point.x, point.y), 1)
+
 def game_loop():
     gameExit = False
 
     polygons = []
     work_polygon = []
+    mouse_point = None
+    mouse_vertices = []
 
     g = vg.VisGraph()
     built = False
     show_static_visgraph = True
+    show_mouse_visgraph = True
 
     while not gameExit:
 
@@ -72,6 +80,8 @@ def game_loop():
                     quit()
                 if event.key == pygame.K_g:
                     show_static_visgraph = not show_static_visgraph
+                if event.key == pygame.K_m:
+                    show_mouse_visgraph = not show_mouse_visgraph
 
             if event.type == pygame.MOUSEBUTTONUP and event.button == LEFT:
                 pos = pygame.mouse.get_pos()
@@ -84,6 +94,12 @@ def game_loop():
                     g.build(polygons)
                     built = True
 
+            if event.type == pygame.MOUSEMOTION:
+                if built:
+                    pos = pygame.mouse.get_pos()
+                    mouse_point = vg.Point(pos[0], pos[1])
+                    mouse_vertices = visible_vertices(mouse_point, g.graph)
+                    
         # Display loop 
         gameDisplay.fill(white)
 
@@ -96,6 +112,9 @@ def game_loop():
 
         if built and show_static_visgraph:
             draw_visible_vertices(g.visgraph.get_edges())
+
+        if built and show_mouse_visgraph and len(mouse_vertices) > 0:
+            draw_visible_mouse_vertices(mouse_point, mouse_vertices)
 
         # Logic loop 
 
