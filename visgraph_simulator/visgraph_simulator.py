@@ -64,11 +64,16 @@ def game_loop():
     work_polygon = []
     mouse_point = None
     mouse_vertices = []
+    start_point = None
+    end_point = None
+    shortest_path = []
 
     g = vg.VisGraph()
     built = False
     show_static_visgraph = True
     show_mouse_visgraph = True
+    mode_draw = True
+    mode_path = False
 
     while not gameExit:
 
@@ -82,24 +87,56 @@ def game_loop():
                     show_static_visgraph = not show_static_visgraph
                 if event.key == pygame.K_m:
                     show_mouse_visgraph = not show_mouse_visgraph
+                if event.key == pygame.K_d:
+                    mode_draw = not mode_draw
+                    mode_path = False
+                    shortest_path = [] 
+                    start_point = []
+                    end_point = []
+                if event.key == pygame.K_s:
+                    if mode_path:
+                        shortest_path = []
+                        start_point = []
+                        end_point = []
+                    mode_path = not mode_path
+                    mode_draw = False
 
             if event.type == pygame.MOUSEBUTTONUP and event.button == LEFT:
                 pos = pygame.mouse.get_pos()
-                work_polygon.append(vg.Point(pos[0], pos[1]))
+                if mode_draw:
+                    work_polygon.append(vg.Point(pos[0], pos[1]))
+                elif mode_path and built:
+                    start_point = vg.Point(pos[0], pos[1])
+                    if end_point:
+                        shortest_path = g.shortest_path(start_point, end_point)
             
             if event.type == pygame.MOUSEBUTTONUP and event.button == RIGHT:
-                if len(work_polygon) > 1:
-                    polygons.append(work_polygon)
-                    work_polygon = []
-                    g.build(polygons)
-                    built = True
+                pos = pygame.mouse.get_pos()
+                if mode_draw:
+                    if len(work_polygon) > 1:
+                        polygons.append(work_polygon)
+                        work_polygon = []
+                        g.build(polygons)
+                        built = True
+                elif mode_path and built:
+                    end_point = vg.Point(pos[0], pos[1])
+                    if start_point:
+                        shortest_path = g.shortest_path(start_point, end_point)
 
             if event.type == pygame.MOUSEMOTION:
-                if built:
-                    pos = pygame.mouse.get_pos()
+                pos = pygame.mouse.get_pos()
+                if built and show_mouse_visgraph:
                     mouse_point = vg.Point(pos[0], pos[1])
                     mouse_vertices = visible_vertices(mouse_point, g.graph)
-                    
+                if mode_path and built and pygame.mouse.get_pressed()[LEFT-1]: 
+                    start_point = vg.Point(pos[0], pos[1])
+                    if end_point:
+                        shortest_path = g.shortest_path(start_point, end_point)
+                if mode_path and built and pygame.mouse.get_pressed()[RIGHT-1]: 
+                    end_point = vg.Point(pos[0], pos[1])
+                    if start_point:
+                        shortest_path = g.shortest_path(start_point, end_point)
+
         # Display loop 
         gameDisplay.fill(white)
 
@@ -115,6 +152,9 @@ def game_loop():
 
         if built and show_mouse_visgraph and len(mouse_vertices) > 0:
             draw_visible_mouse_vertices(mouse_point, mouse_vertices)
+
+        if len(shortest_path) > 1:
+            draw_polygon(shortest_path, complete=False)
 
         # Logic loop 
 
