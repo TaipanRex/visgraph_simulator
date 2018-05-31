@@ -57,6 +57,11 @@ def draw_visible_mouse_vertices(pos, points):
     for point in points:
         pygame.draw.line(gameDisplay, red, (pos.x, pos.y), (point.x, point.y), 1)
 
+def draw_mode(mode_txt):
+    font = pygame.font.SysFont(None, 25)
+    text = font.render(mode_txt, True, black)
+    gameDisplay.blit(text, (0, 0))
+
 def game_loop():
     gameExit = False
 
@@ -156,8 +161,14 @@ def game_loop():
         if len(shortest_path) > 1:
             draw_polygon(shortest_path, complete=False)
 
-        # Logic loop 
+        if mode_draw:
+            draw_mode("-- DRAW MODE --")
+        elif mode_path:
+            draw_mode("-- SHORTEST PATH MODE --")
+        else:
+            draw_mode("-- VIEW MODE --")
 
+        # Logic loop 
 
         pygame.display.update()
         clock.tick(60)
