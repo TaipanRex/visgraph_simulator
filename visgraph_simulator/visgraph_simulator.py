@@ -31,27 +31,73 @@ display_height = 720
 
 black = (0, 0, 0)
 white = (255, 255, 255)
+red = (237, 41, 57)
+
+LEFT = 1
+RIGHT = 3
 
 gameDisplay = pygame.display.set_mode((display_width, display_height))
 pygame.display.set_caption('Visibility Graph Simulator')
 clock = pygame.time.Clock()
 
+def draw_polygon(polygon, complete=True):
+    if complete:
+        polygon.append(polygon[0])
+    p1 = polygon[0]
+    for p2 in polygon[1:]:
+        pygame.draw.line(gameDisplay, black, (p1.x, p1.y), (p2.x, p2.y), 4)
+        p1 = p2
+
+def draw_visible_vertices(edges):
+    for edge in edges:
+        pygame.draw.line(gameDisplay, red, (edge.p1.x, edge.p1.y), (edge.p2.x, edge.p2.y), 1)
+
 def game_loop():
     gameExit = False
 
+    polygons = []
+    work_polygon = []
+
+    g = vg.VisGraph()
+    built = False
+    show_static_visgraph = True
+
     while not gameExit:
 
-        # Event manager
+        # Event loop
         for event in pygame.event.get():
-            if event.type == pygame.KEYDOWN:
+            if event.type == pygame.KEYUP:
                 if event.key == pygame.K_q:
                     pygame.quit()
                     quit()
+                if event.key == pygame.K_g:
+                    show_static_visgraph = not show_static_visgraph
 
-        # Display manager
+            if event.type == pygame.MOUSEBUTTONUP and event.button == LEFT:
+                pos = pygame.mouse.get_pos()
+                work_polygon.append(vg.Point(pos[0], pos[1]))
+            
+            if event.type == pygame.MOUSEBUTTONUP and event.button == RIGHT:
+                if len(work_polygon) > 1:
+                    polygons.append(work_polygon)
+                    work_polygon = []
+                    g.build(polygons)
+                    built = True
+
+        # Display loop 
         gameDisplay.fill(white)
 
-        # Logic manager
+        if len(work_polygon) > 1:
+            draw_polygon(work_polygon, complete=False)
+
+        if len(polygons) > 0:
+            for polygon in polygons:
+                draw_polygon(polygon)
+
+        if built and show_static_visgraph:
+            draw_visible_vertices(g.visgraph.get_edges())
+
+        # Logic loop 
 
 
         pygame.display.update()
