@@ -59,10 +59,51 @@ def draw_visible_mouse_vertices(pos, points, color, size):
     for point in points:
         pygame.draw.line(gameDisplay, color, (pos.x, pos.y), (point.x, point.y), size)
 
-def draw_mode(mode_txt):
-    font = pygame.font.SysFont(None, 25)
-    text = font.render(mode_txt, True, black)
-    gameDisplay.blit(text, (0, 0))
+def draw_text(mode_txt, color, size, x, y):
+    font = pygame.font.SysFont(None, size)
+    text = font.render(mode_txt, True, color)
+    gameDisplay.blit(text, (x, y))
+
+def help_screen(): 
+    rectw = 550 
+    recth = 500 
+    rectwi = rectw-10 
+    recthi = recth-10
+    startx = display_width*0.5-rectw/2
+    starty = display_height*0.5-recth/2
+    startxi = display_width*0.5-rectwi/2
+    startyi = display_height*0.5-recthi/2
+
+    helping = True
+    while helping:
+        for event in pygame.event.get():
+            if event.type == pygame.KEYUP:
+                if event.key == pygame.K_q:
+                    pygame.quit()
+                    quit()
+                elif event.key == pygame.K_h:
+                    helping = False
+        
+        pygame.draw.rect(gameDisplay, black, (startx, starty, rectw, recth))
+        pygame.draw.rect(gameDisplay, white, (startxi, startyi, rectwi, recthi))
+        
+        draw_text("-- VISIBILITY GRAPH SIMULATOR --", black, 30, startxi+90, startyi+10)
+        draw_text("Q - QUIT", black, 25, startxi+10, startyi+45)
+        draw_text("H - TOGGLE HELP SCREEN", black, 25, startxi+10, startyi+80)
+        draw_text("D - TOGGLE DRAW MODE", black, 25, startxi+10, startyi+115)
+        draw_text("    Draw polygons by left clicking to set a point of the", black, 25, startxi+10, startyi+150)
+        draw_text("    polygon. Right click to close and finish the polygon.", black, 25, startxi+10, startyi+180)
+        draw_text("    U - UNDO LAST POLYGON POINT PLACEMENT", black, 25, startxi+10, startyi+215)
+        draw_text("    C - CLEAR THE SCREEN", black, 25, startxi+10, startyi+250)
+        draw_text("S - TOGGLE SHORTEST PATH MODE", black, 25, startxi+10, startyi+285)
+        draw_text("    Left click to set start point, right click to set end point.", black, 25, startxi+10, startyi+320)
+        draw_text("    Hold left/right mouse button down to drag start/end point.", black, 25, startxi+10, startyi+355)
+        draw_text("M - TOGGLE VISIBILE VERTICES FROM MOUSE CURSOR", black, 25, startxi+10, startyi+390)
+        draw_text("G - TOGGLE POLYGON VISIBILITY GRAPH", black, 25, startxi+10, startyi+425)
+        draw_text("© Christian August Reksten-Monsen", black, 20, startxi+140, startyi+470)
+
+        pygame.display.update()
+        clock.tick(10)
 
 def game_loop():
     gameExit = False
@@ -78,7 +119,7 @@ def game_loop():
     g = vg.VisGraph()
     built = False
     show_static_visgraph = True
-    show_mouse_visgraph = True
+    show_mouse_visgraph = False 
     mode_draw = True
     mode_path = False
 
@@ -90,6 +131,9 @@ def game_loop():
                 if event.key == pygame.K_q:
                     pygame.quit()
                     quit()
+                if event.key == pygame.K_h:
+                    help_screen()
+
                 if event.key == pygame.K_g:
                     show_static_visgraph = not show_static_visgraph
                 if event.key == pygame.K_m:
@@ -164,11 +208,11 @@ def game_loop():
             draw_polygon(shortest_path, red, 3, complete=False)
 
         if mode_draw:
-            draw_mode("-- DRAW MODE --")
+            draw_text("-- DRAW MODE --", black, 25, 0, 0)
         elif mode_path:
-            draw_mode("-- SHORTEST PATH MODE --")
+            draw_text("-- SHORTEST PATH MODE --", black, 25, 0, 0)
         else:
-            draw_mode("-- VIEW MODE --")
+            draw_text("-- VIEW MODE --", black, 25, 0, 0)
 
         # Logic loop 
 
