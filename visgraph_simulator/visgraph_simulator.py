@@ -89,7 +89,7 @@ def help_screen():
         
         draw_text("-- VISIBILITY GRAPH SIMULATOR --", black, 30, startxi+90, startyi+10)
         draw_text("Q - QUIT", black, 25, startxi+10, startyi+45)
-        draw_text("H - TOGGLE HELP SCREEN", black, 25, startxi+10, startyi+80)
+        draw_text("H - TOGGLE HELP SCREEN (THIS SCREEN)", black, 25, startxi+10, startyi+80)
         draw_text("D - TOGGLE DRAW MODE", black, 25, startxi+10, startyi+115)
         draw_text("    Draw polygons by left clicking to set a point of the", black, 25, startxi+10, startyi+150)
         draw_text("    polygon. Right click to close and finish the polygon.", black, 25, startxi+10, startyi+180)
@@ -138,6 +138,19 @@ def game_loop():
                     show_static_visgraph = not show_static_visgraph
                 if event.key == pygame.K_m:
                     show_mouse_visgraph = not show_mouse_visgraph
+                if event.key == pygame.K_u and mode_draw:
+                    if len(work_polygon) > 0:
+                        work_polygon.pop()
+                if event.key == pygame.K_c and mode_draw:
+                    mouse_point = None
+                    mouse_vertices = []
+                    g = vg.VisGraph()
+                    built = False
+                    work_polygon = []
+                    polygons = []
+                    start_point = None
+                    end_point = None
+                    shortest_path = []
                 if event.key == pygame.K_d:
                     mode_draw = not mode_draw
                     mode_path = False
@@ -208,18 +221,18 @@ def game_loop():
             draw_polygon(shortest_path, red, 3, complete=False)
 
         if mode_draw:
-            draw_text("-- DRAW MODE --", black, 25, 0, 0)
+            draw_text("-- DRAW MODE --", black, 25, 5, 5)
         elif mode_path:
-            draw_text("-- SHORTEST PATH MODE --", black, 25, 0, 0)
+            draw_text("-- SHORTEST PATH MODE --", black, 25, 5, 5)
         else:
-            draw_text("-- VIEW MODE --", black, 25, 0, 0)
-
-        # Logic loop 
+            draw_text("-- VIEW MODE --", black, 25, 5, 5)
 
         pygame.display.update()
         clock.tick(60)
 
 if __name__ == "__main__":
+    gameDisplay.fill(white)
+    help_screen()
     game_loop()
     pygame.quit()
     quit()
