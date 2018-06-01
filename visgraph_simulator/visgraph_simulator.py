@@ -180,7 +180,7 @@ def game_loop():
                     if len(work_polygon) > 1:
                         polygons.append(work_polygon)
                         work_polygon = []
-                        g.build(polygons)
+                        g.build(polygons, status=False)
                         built = True
                 elif mode_path and built:
                     end_point = vg.Point(pos[0], pos[1])
