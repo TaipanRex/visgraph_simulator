@@ -4,4 +4,20 @@
 
 See how visibility graphs work in a interactive way using [Pyvisgraph](https://github.com/TaipanRex/pyvisgraph)
 and [Pygame](https://github.com/pygame/pygame). Create obstacle polygons with the mouse and see how 
-visibility graphs work in different ways.
+visibility graphs work in different ways. Find the shortest path between two points.
+
+![Visibility Graph Simulator usage](docs/screencast.gif)
+
+## Requirements
+
+* [Pyvisgraph](https://github.com/TaipanRex/pyvisgraph)
+* [Pygame](https://github.com/pygame/pygame)
+* Python 3
+
+## Installation
+
+```shell
+git clone https://github.com/TaipanRex/visgraph_simulator.git
+cd visgraph_simulator
+python3 visgraph_simulator/visgraph_simulator.py
+```
