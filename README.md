@@ -21,3 +21,8 @@ git clone https://github.com/TaipanRex/visgraph_simulator.git
 cd visgraph_simulator
 python3 visgraph_simulator/visgraph_simulator.py
 ```
+
+## Windows installer
+
+Please go to the [releases](https://github.com/TaipanRex/visgraph_simulator/releases) page and
+download the msi installer for the latest version of Visibility Graph simulator.
