@@ -128,6 +128,10 @@ class Simulator():
         self._clear_shortest_path()
         self.mode_path = False
 
+    def draw_point_undo(self):
+        if len(sim.work_polygon) > 0:
+            sim.work_polygon.pop()
+
     def toggle_shortest_path_mode(self):
         if self.mode_path:
             self._clear_shortest_path()
@@ -150,61 +154,51 @@ def game_loop():
 
         # Event loop
         for event in pygame.event.get():
+            pos = pygame.mouse.get_pos()
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_q:
                     pygame.quit()
                     quit()
-                if event.key == pygame.K_h:
+                elif event.key == pygame.K_h:
                     help_screen()
-                if event.key == pygame.K_g:
+                elif event.key == pygame.K_g:
                     sim.show_static_visgraph = not sim.show_static_visgraph
-                if event.key == pygame.K_m:
+                elif event.key == pygame.K_m:
                     sim.show_mouse_visgraph = not sim.show_mouse_visgraph
-                if event.key == pygame.K_u and sim.mode_draw:
-                    if len(sim.work_polygon) > 0:
-                        sim.work_polygon.pop()
-                if event.key == pygame.K_c and sim.mode_draw:
-                    sim.clear_all()
-                if event.key == pygame.K_d:
+                elif event.key == pygame.K_d:
                     sim.toggle_draw_mode()
-                if event.key == pygame.K_s:
+                elif event.key == pygame.K_s:
                     sim.toggle_shortest_path_mode()
 
-            if event.type == pygame.MOUSEBUTTONUP and event.button == LEFT:
-                pos = pygame.mouse.get_pos()
-                if sim.mode_draw:
-                    sim.work_polygon.append(vg.Point(pos[0], pos[1]))
-                elif sim.mode_path and sim.built:
-                    sim.start_point = vg.Point(pos[0], pos[1])
-                    if sim.end_point:
+            elif sim.mode_draw:
+                if event.type == pygame.KEYUP:
+                    if event.key == pygame.K_u:
+                        sim.draw_point_undo()
+                    elif event.key == pygame.K_c:
+                        sim.clear_all()
+                elif event.type == pygame.MOUSEBUTTONUP:
+                    if event.button == LEFT:
+                        sim.work_polygon.append(vg.Point(pos[0], pos[1]))
+                    elif event.button == RIGHT:
+                        if len(sim.work_polygon) > 1:
+                            sim.polygons.append(sim.work_polygon)
+                            sim.work_polygon = []
+                            sim.g.build(sim.polygons, status=False)
+                            sim.built = True
+
+            elif sim.mode_path and sim.built:
+                if event.type == pygame.MOUSEBUTTONUP or any(pygame.mouse.get_pressed()):
+                    if pygame.mouse.get_pressed()[LEFT-1] or event.button == LEFT:
+                        sim.start_point = vg.Point(pos[0], pos[1])
+                    elif pygame.mouse.get_pressed()[RIGHT-1] or event.button == RIGHT:
+                        sim.end_point = vg.Point(pos[0], pos[1])
+                    if sim.start_point and sim.end_point:
                         sim.shortest_path = sim.g.shortest_path(sim.start_point, sim.end_point)
 
-            if event.type == pygame.MOUSEBUTTONUP and event.button == RIGHT:
-                pos = pygame.mouse.get_pos()
-                if sim.mode_draw:
-                    if len(sim.work_polygon) > 1:
-                        sim.polygons.append(sim.work_polygon)
-                        sim.work_polygon = []
-                        sim.g.build(sim.polygons, status=False)
-                        sim.built = True
-                elif sim.mode_path and sim.built:
-                    sim.end_point = vg.Point(pos[0], pos[1])
-                    if sim.start_point:
-                        sim.shortest_path = sim.g.shortest_path(sim.start_point, sim.end_point)
-
-            if event.type == pygame.MOUSEMOTION:
-                pos = pygame.mouse.get_pos()
-                if sim.built and sim.show_mouse_visgraph:
+            if sim.show_mouse_visgraph and sim.built:
+                if event.type == pygame.MOUSEMOTION:
                     sim.mouse_point = vg.Point(pos[0], pos[1])
-                    sim.mouse_vertices = visible_vertices(mouse_point, g.graph)
-                if sim.mode_path and sim.built and pygame.mouse.get_pressed()[LEFT-1]:
-                    sim.start_point = vg.Point(pos[0], pos[1])
-                    if sim.end_point:
-                        sim.shortest_path = sim.g.shortest_path(sim.start_point, sim.end_point)
-                if sim.mode_path and sim.built and pygame.mouse.get_pressed()[RIGHT-1]:
-                    sim.end_point = vg.Point(pos[0], pos[1])
-                    if sim.start_point:
-                        sim.shortest_path = sim.g.shortest_path(sim.start_point, sim.end_point)
+                    sim.mouse_vertices = visible_vertices(sim.mouse_point, sim.g.graph)
 
         # Display loop
         gameDisplay.fill(white)
