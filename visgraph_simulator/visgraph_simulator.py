@@ -128,9 +128,16 @@ class Simulator():
         self._clear_shortest_path()
         self.mode_path = False
 
+    def close_polygon(self):
+        if len(self.work_polygon) > 1:
+            self.polygons.append(self.work_polygon)
+            self.work_polygon = []
+            self.g.build(self.polygons, status=False)
+            self.built = True
+
     def draw_point_undo(self):
-        if len(sim.work_polygon) > 0:
-            sim.work_polygon.pop()
+        if len(self.work_polygon) > 0:
+            self.work_polygon.pop()
 
     def toggle_shortest_path_mode(self):
         if self.mode_path:
@@ -170,7 +177,7 @@ def game_loop():
                 elif event.key == pygame.K_s:
                     sim.toggle_shortest_path_mode()
 
-            elif sim.mode_draw:
+            if sim.mode_draw:
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_u:
                         sim.draw_point_undo()
@@ -180,13 +187,9 @@ def game_loop():
                     if event.button == LEFT:
                         sim.work_polygon.append(vg.Point(pos[0], pos[1]))
                     elif event.button == RIGHT:
-                        if len(sim.work_polygon) > 1:
-                            sim.polygons.append(sim.work_polygon)
-                            sim.work_polygon = []
-                            sim.g.build(sim.polygons, status=False)
-                            sim.built = True
+                        sim.close_polygon()
 
-            elif sim.mode_path and sim.built:
+            if sim.mode_path and sim.built:
                 if event.type == pygame.MOUSEBUTTONUP or any(pygame.mouse.get_pressed()):
                     if pygame.mouse.get_pressed()[LEFT-1] or event.button == LEFT:
                         sim.start_point = vg.Point(pos[0], pos[1])
@@ -227,7 +230,7 @@ def game_loop():
             draw_text("-- VIEW MODE --", black, 25, 5, 5)
 
         pygame.display.update()
-        clock.tick(10)
+        clock.tick(30)
 
 if __name__ == "__main__":
     gameDisplay.fill(white)
