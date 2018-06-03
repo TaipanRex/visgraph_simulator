@@ -123,6 +123,25 @@ class Simulator():
         self.mode_draw = True
         self.mode_path = False
 
+    def toggle_draw_mode(self):
+        self.mode_draw = not self.mode_draw
+        self._clear_shortest_path()
+        self.mode_path = False
+
+    def toggle_shortest_path_mode(self):
+        if self.mode_path:
+            self._clear_shortest_path()
+        self.mode_path = not self.mode_path
+        self.mode_draw = False
+
+    def clear_all(self):
+        self.__init__()
+
+    def _clear_shortest_path(self):
+        self.shortest_path = []
+        self.start_point = []
+        self.end_point = [] 
+
 def game_loop():
     sim = Simulator()
     gameExit = False
@@ -145,28 +164,11 @@ def game_loop():
                     if len(sim.work_polygon) > 0:
                         sim.work_polygon.pop()
                 if event.key == pygame.K_c and sim.mode_draw:
-                    sim.mouse_point = None
-                    sim.mouse_vertices = []
-                    sim.g = vg.VisGraph()
-                    sim.built = False
-                    sim.work_polygon = []
-                    sim.polygons = []
-                    sim.start_point = None
-                    sim.end_point = None
-                    sim.shortest_path = []
+                    sim.clear_all()
                 if event.key == pygame.K_d:
-                    sim.mode_draw = not sim.mode_draw
-                    sim.mode_path = False
-                    sim.shortest_path = []
-                    sim.start_point = []
-                    sim.end_point = []
+                    sim.toggle_draw_mode()
                 if event.key == pygame.K_s:
-                    if sim.mode_path:
-                        sim.shortest_path = []
-                        sim.start_point = []
-                        sim.end_point = []
-                    sim.mode_path = not sim.mode_path
-                    sim.mode_draw = False
+                    sim.toggle_shortest_path_mode()
 
             if event.type == pygame.MOUSEBUTTONUP and event.button == LEFT:
                 pos = pygame.mouse.get_pos()
