@@ -27,8 +27,8 @@ import pygame
 
 pygame.init()
 
-display_width = 1280 
-display_height = 720 
+display_width = 1280
+display_height = 720
 
 black = (0, 0, 0)
 white = (255, 255, 255)
@@ -64,10 +64,10 @@ def draw_text(mode_txt, color, size, x, y):
     text = font.render(mode_txt, True, color)
     gameDisplay.blit(text, (x, y))
 
-def help_screen(): 
-    rectw = 550 
-    recth = 500 
-    rectwi = rectw-10 
+def help_screen():
+    rectw = 550
+    recth = 500
+    rectwi = rectw-10
     recthi = recth-10
     startx = display_width*0.5-rectw/2
     starty = display_height*0.5-recth/2
@@ -83,10 +83,10 @@ def help_screen():
                     quit()
                 elif event.key == pygame.K_h:
                     helping = False
-        
+
         pygame.draw.rect(gameDisplay, black, (startx, starty, rectw, recth))
         pygame.draw.rect(gameDisplay, white, (startxi, startyi, rectwi, recthi))
-        
+
         draw_text("-- VISIBILITY GRAPH SIMULATOR --", black, 30, startxi+90, startyi+10)
         draw_text("Q - QUIT", black, 25, startxi+10, startyi+45)
         draw_text("H - TOGGLE HELP SCREEN (THIS SCREEN)", black, 25, startxi+10, startyi+80)
@@ -119,7 +119,7 @@ def game_loop():
     g = vg.VisGraph()
     built = False
     show_static_visgraph = True
-    show_mouse_visgraph = False 
+    show_mouse_visgraph = False
     mode_draw = True
     mode_path = False
 
@@ -154,7 +154,7 @@ def game_loop():
                 if event.key == pygame.K_d:
                     mode_draw = not mode_draw
                     mode_path = False
-                    shortest_path = [] 
+                    shortest_path = []
                     start_point = []
                     end_point = []
                 if event.key == pygame.K_s:
@@ -173,7 +173,7 @@ def game_loop():
                     start_point = vg.Point(pos[0], pos[1])
                     if end_point:
                         shortest_path = g.shortest_path(start_point, end_point)
-            
+
             if event.type == pygame.MOUSEBUTTONUP and event.button == RIGHT:
                 pos = pygame.mouse.get_pos()
                 if mode_draw:
@@ -192,16 +192,16 @@ def game_loop():
                 if built and show_mouse_visgraph:
                     mouse_point = vg.Point(pos[0], pos[1])
                     mouse_vertices = visible_vertices(mouse_point, g.graph)
-                if mode_path and built and pygame.mouse.get_pressed()[LEFT-1]: 
+                if mode_path and built and pygame.mouse.get_pressed()[LEFT-1]:
                     start_point = vg.Point(pos[0], pos[1])
                     if end_point:
                         shortest_path = g.shortest_path(start_point, end_point)
-                if mode_path and built and pygame.mouse.get_pressed()[RIGHT-1]: 
+                if mode_path and built and pygame.mouse.get_pressed()[RIGHT-1]:
                     end_point = vg.Point(pos[0], pos[1])
                     if start_point:
                         shortest_path = g.shortest_path(start_point, end_point)
 
-        # Display loop 
+        # Display loop
         gameDisplay.fill(white)
 
         if len(work_polygon) > 1:
@@ -236,19 +236,3 @@ if __name__ == "__main__":
     game_loop()
     pygame.quit()
     quit()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
