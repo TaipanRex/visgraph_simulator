@@ -10,7 +10,7 @@ visibility graphs work in different ways. Find the shortest path between two poi
 
 ## Requirements
 
-* [Pyvisgraph](https://github.com/TaipanRex/pyvisgraph)
+* [Pyvisgraph](https://github.com/TaipanRex/pyvisgraph) >= 0.2.1
 * [Pygame](https://github.com/pygame/pygame)
 * Python 3
 
