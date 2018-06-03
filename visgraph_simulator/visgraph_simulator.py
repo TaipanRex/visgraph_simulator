@@ -105,23 +105,27 @@ def help_screen():
         pygame.display.update()
         clock.tick(10)
 
+class Simulator():
+
+    def __init__(self):
+        self.polygons = []
+        self.work_polygon = []
+        self.mouse_point = None
+        self.mouse_vertices = []
+        self.start_point = None
+        self.end_point = None
+        self.shortest_path = []
+
+        self.g = vg.VisGraph()
+        self.built = False
+        self.show_static_visgraph = True
+        self.show_mouse_visgraph = False
+        self.mode_draw = True
+        self.mode_path = False
+
 def game_loop():
+    sim = Simulator()
     gameExit = False
-
-    polygons = []
-    work_polygon = []
-    mouse_point = None
-    mouse_vertices = []
-    start_point = None
-    end_point = None
-    shortest_path = []
-
-    g = vg.VisGraph()
-    built = False
-    show_static_visgraph = True
-    show_mouse_visgraph = False
-    mode_draw = True
-    mode_path = False
 
     while not gameExit:
 
@@ -133,96 +137,95 @@ def game_loop():
                     quit()
                 if event.key == pygame.K_h:
                     help_screen()
-
                 if event.key == pygame.K_g:
-                    show_static_visgraph = not show_static_visgraph
+                    sim.show_static_visgraph = not sim.show_static_visgraph
                 if event.key == pygame.K_m:
-                    show_mouse_visgraph = not show_mouse_visgraph
-                if event.key == pygame.K_u and mode_draw:
-                    if len(work_polygon) > 0:
-                        work_polygon.pop()
-                if event.key == pygame.K_c and mode_draw:
-                    mouse_point = None
-                    mouse_vertices = []
-                    g = vg.VisGraph()
-                    built = False
-                    work_polygon = []
-                    polygons = []
-                    start_point = None
-                    end_point = None
-                    shortest_path = []
+                    sim.show_mouse_visgraph = not sim.show_mouse_visgraph
+                if event.key == pygame.K_u and sim.mode_draw:
+                    if len(sim.work_polygon) > 0:
+                        sim.work_polygon.pop()
+                if event.key == pygame.K_c and sim.mode_draw:
+                    sim.mouse_point = None
+                    sim.mouse_vertices = []
+                    sim.g = vg.VisGraph()
+                    sim.built = False
+                    sim.work_polygon = []
+                    sim.polygons = []
+                    sim.start_point = None
+                    sim.end_point = None
+                    sim.shortest_path = []
                 if event.key == pygame.K_d:
-                    mode_draw = not mode_draw
-                    mode_path = False
-                    shortest_path = []
-                    start_point = []
-                    end_point = []
+                    sim.mode_draw = not sim.mode_draw
+                    sim.mode_path = False
+                    sim.shortest_path = []
+                    sim.start_point = []
+                    sim.end_point = []
                 if event.key == pygame.K_s:
-                    if mode_path:
-                        shortest_path = []
-                        start_point = []
-                        end_point = []
-                    mode_path = not mode_path
-                    mode_draw = False
+                    if sim.mode_path:
+                        sim.shortest_path = []
+                        sim.start_point = []
+                        sim.end_point = []
+                    sim.mode_path = not sim.mode_path
+                    sim.mode_draw = False
 
             if event.type == pygame.MOUSEBUTTONUP and event.button == LEFT:
                 pos = pygame.mouse.get_pos()
-                if mode_draw:
-                    work_polygon.append(vg.Point(pos[0], pos[1]))
-                elif mode_path and built:
-                    start_point = vg.Point(pos[0], pos[1])
-                    if end_point:
-                        shortest_path = g.shortest_path(start_point, end_point)
+                if sim.mode_draw:
+                    sim.work_polygon.append(vg.Point(pos[0], pos[1]))
+                elif sim.mode_path and sim.built:
+                    sim.start_point = vg.Point(pos[0], pos[1])
+                    if sim.end_point:
+                        sim.shortest_path = sim.g.shortest_path(sim.start_point, sim.end_point)
 
             if event.type == pygame.MOUSEBUTTONUP and event.button == RIGHT:
                 pos = pygame.mouse.get_pos()
-                if mode_draw:
-                    if len(work_polygon) > 1:
-                        polygons.append(work_polygon)
-                        work_polygon = []
-                        g.build(polygons, status=False)
-                        built = True
-                elif mode_path and built:
-                    end_point = vg.Point(pos[0], pos[1])
-                    if start_point:
-                        shortest_path = g.shortest_path(start_point, end_point)
+                if sim.mode_draw:
+                    if len(sim.work_polygon) > 1:
+                        sim.polygons.append(sim.work_polygon)
+                        sim.work_polygon = []
+                        sim.g.build(sim.polygons, status=False)
+                        sim.built = True
+                elif sim.mode_path and sim.built:
+                    sim.end_point = vg.Point(pos[0], pos[1])
+                    if sim.start_point:
+                        sim.shortest_path = sim.g.shortest_path(sim.start_point, sim.end_point)
 
             if event.type == pygame.MOUSEMOTION:
                 pos = pygame.mouse.get_pos()
-                if built and show_mouse_visgraph:
-                    mouse_point = vg.Point(pos[0], pos[1])
-                    mouse_vertices = visible_vertices(mouse_point, g.graph)
-                if mode_path and built and pygame.mouse.get_pressed()[LEFT-1]:
-                    start_point = vg.Point(pos[0], pos[1])
-                    if end_point:
-                        shortest_path = g.shortest_path(start_point, end_point)
-                if mode_path and built and pygame.mouse.get_pressed()[RIGHT-1]:
-                    end_point = vg.Point(pos[0], pos[1])
-                    if start_point:
-                        shortest_path = g.shortest_path(start_point, end_point)
+                if sim.built and sim.show_mouse_visgraph:
+                    sim.mouse_point = vg.Point(pos[0], pos[1])
+                    sim.mouse_vertices = visible_vertices(mouse_point, g.graph)
+                if sim.mode_path and sim.built and pygame.mouse.get_pressed()[LEFT-1]:
+                    sim.start_point = vg.Point(pos[0], pos[1])
+                    if sim.end_point:
+                        sim.shortest_path = sim.g.shortest_path(sim.start_point, sim.end_point)
+                if sim.mode_path and sim.built and pygame.mouse.get_pressed()[RIGHT-1]:
+                    sim.end_point = vg.Point(pos[0], pos[1])
+                    if sim.start_point:
+                        sim.shortest_path = sim.g.shortest_path(sim.start_point, sim.end_point)
 
         # Display loop
         gameDisplay.fill(white)
 
-        if len(work_polygon) > 1:
-            draw_polygon(work_polygon, black, 3, complete=False)
+        if len(sim.work_polygon) > 1:
+            draw_polygon(sim.work_polygon, black, 3, complete=False)
 
-        if len(polygons) > 0:
-            for polygon in polygons:
+        if len(sim.polygons) > 0:
+            for polygon in sim.polygons:
                 draw_polygon(polygon, black, 3)
 
-        if built and show_static_visgraph:
-            draw_visible_vertices(g.visgraph.get_edges(), gray, 1)
+        if sim.built and sim.show_static_visgraph:
+            draw_visible_vertices(sim.g.visgraph.get_edges(), gray, 1)
 
-        if built and show_mouse_visgraph and len(mouse_vertices) > 0:
-            draw_visible_mouse_vertices(mouse_point, mouse_vertices, gray, 1)
+        if sim.built and sim.show_mouse_visgraph and len(sim.mouse_vertices) > 0:
+            draw_visible_mouse_vertices(sim.mouse_point, sim.mouse_vertices, gray, 1)
 
-        if len(shortest_path) > 1:
-            draw_polygon(shortest_path, red, 3, complete=False)
+        if len(sim.shortest_path) > 1:
+            draw_polygon(sim.shortest_path, red, 3, complete=False)
 
-        if mode_draw:
+        if sim.mode_draw:
             draw_text("-- DRAW MODE --", black, 25, 5, 5)
-        elif mode_path:
+        elif sim.mode_path:
             draw_text("-- SHORTEST PATH MODE --", black, 25, 5, 5)
         else:
             draw_text("-- VIEW MODE --", black, 25, 5, 5)
