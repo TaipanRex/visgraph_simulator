@@ -22,7 +22,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 import pyvisgraph as vg
-from pyvisgraph.visible_vertices import visible_vertices
 import pygame
 
 pygame.init()
@@ -201,7 +200,7 @@ def game_loop():
             if sim.show_mouse_visgraph and sim.built:
                 if event.type == pygame.MOUSEMOTION:
                     sim.mouse_point = vg.Point(pos[0], pos[1])
-                    sim.mouse_vertices = visible_vertices(sim.mouse_point, sim.g.graph)
+                    sim.mouse_vertices = sim.g.find_visible(sim.mouse_point)
 
         # Display loop
         gameDisplay.fill(white)
