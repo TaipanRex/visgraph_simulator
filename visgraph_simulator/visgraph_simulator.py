@@ -230,7 +230,7 @@ def game_loop():
             draw_text("-- VIEW MODE --", black, 25, 5, 5)
 
         pygame.display.update()
-        clock.tick(30)
+        clock.tick(20)
 
 if __name__ == "__main__":
     gameDisplay.fill(white)
